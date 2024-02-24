@@ -7,6 +7,10 @@ using UnityEngine.Events;
 public class Menu : MonoBehaviour
 {
     public MenuClassifier menuClassifier;
+   
+
+
+    
 
     public enum StartingMenuState
     {
@@ -63,6 +67,9 @@ public class Menu : MonoBehaviour
 
     protected virtual void Start()
     {
+
+       
+
         canvas = GetComponentInParent<Canvas>();
         animator = GetComponent<Animator>();
 
@@ -84,6 +91,8 @@ public class Menu : MonoBehaviour
                 isOpen = false;
                 canvas.gameObject.SetActive(false);
                 break;
+
+
         }
     }
 }
