@@ -10,66 +10,59 @@ using UnityEngine.SceneManagement;
 
 public class Movements : MonoBehaviour
 {
+    private PlayerControls controls;
+    private Vector2 moveInput; // This will store the movement input for the D-Pad
+    private Rigidbody2D rb;
     public float speed = 5.0f;
     public float jumpForce = 7.0f;
-
-
-
-    public int treasureCount = 0;
     public TextMeshProUGUI treasureCounterText;
     public Animator animator;
-    public bool played = false;
     public LayerMask groundLayer;
     public float groundCheckRadius = 0.2f;
+    public bool played = false;
+    private int treasureCount = 0;
 
-    private Rigidbody2D rb;
+    void Awake()
+    {
+        controls = new PlayerControls();
 
-    private bool isAttacking = false;
+        // Subscribe to the performed and canceled events for the Move action
+        controls.Movement.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
+        controls.Movement.Move.canceled += ctx => moveInput = Vector2.zero;
+        controls.Movement.Move.performed += ctx => Jump();
+
+        rb = GetComponent<Rigidbody2D>();
+    }
+
+    void OnEnable()
+    {
+        controls.Enable(); // Enable all input actions
+    }
+
+    void OnDisable()
+    {
+        controls.Disable(); // Disable all input actions
+    }
 
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
         UpdateTreasureCounter();
     }
 
     void Update()
     {
         MovePlayer();
-        if (Input.GetButtonDown("Jump") && !isAttacking)
-        {
-            Jump();
-        }
-        if (Input.GetButtonDown("Fire1"))
-        {
-       
-            Attack();
-            
-            
-        }
-
-        // Update the IsJumping animation parameter
-        animator.GetBool("IsJumping");
-
-        
+        // Jump and Attack can be handled here if needed, using the new Input System
     }
 
     void MovePlayer()
     {
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        rb.velocity = new Vector2(moveHorizontal * speed, rb.velocity.y);
+        // Now using moveInput to move the player
+        rb.velocity = new Vector2(moveInput.x * speed, rb.velocity.y);
 
         // Set animation parameters
-        animator.SetBool("IsWalking", Mathf.Abs(moveHorizontal) > 0);
-        if (moveHorizontal > 0)
-        {
-            animator.SetBool("IsIdle", false);
-            
-        }
-
-        if (moveHorizontal == 0)
-        {
-            animator.SetBool("IsIdle", true);
-        }
+        animator.SetBool("IsWalking", Mathf.Abs(moveInput.x) > 0);
+        animator.SetBool("IsIdle", moveInput.x == 0);
     }
 
     void Jump()
